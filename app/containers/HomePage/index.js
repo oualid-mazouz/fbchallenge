@@ -74,12 +74,10 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
         localStorage.setItem('connectionStatus',response.status);
         let userid = parseInt(userID);
         console.log(typeof userid);
-        FB.api('/'+{userid}+'/albums?access_token='+accessToken, function(response2) {
-          console.log('user_id albums ');
-          console.log(response2);
+       // FB.api('/'+{userid}+'/albums?access_token='+accessToken, function(response2) {
 
 
-         // let fetchUrl = 'https://graph.facebook.com/me/albums&accessToken='+accessToken;
+        
           let fetchUrl = 'https://graph.facebook.com/me/albums?access_token='+accessToken+'&fields=id,name,email';
 
           //using axios to get all albums
@@ -88,7 +86,7 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
             method:'get',
             url:fetchUrl,
             responseType:'stream'
-          }).then(function(re) {
+          }).then((re)=> {
               console.log('from axios');
               console.log(re.data.data);
 
@@ -132,8 +130,7 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
             }
 
           });
-
-        });
+        //});
 
       }
     },{scope: 'user_photos,publish_actions'});

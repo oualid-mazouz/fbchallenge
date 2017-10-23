@@ -11,6 +11,14 @@ module.exports = (options) => ({
     path: path.resolve(process.cwd(), 'build'),
     publicPath: '/',
   }, options.output), // Merge with env dependent settings
+  node: {
+    fs: 'empty',
+    child_process: 'empty',
+    net: 'empty',
+    tls: 'empty',
+    dns: 'empty',
+    module: 'empty',
+  },
   module: {
     loaders: [{
       test: /\.js$/, // Transform all .js files required somewhere with Babel
