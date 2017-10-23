@@ -65,17 +65,16 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
     FB.login(response => {
       localStorage.setItem('pers','[]');
       if (response && response.authResponse) {
-        let { userID, accessToken } = response.authResponse;
-        let payload = { id: userID, token: accessToken };
-        self.props.login(payload);
-        localStorage.setItem('connectionStatus',response.status);
-        let userid = parseInt(userID);
+          let { userID, accessToken } = response.authResponse;
+          let payload = { id: userID, token: accessToken };
+          self.props.login(payload);
+          localStorage.setItem('connectionStatus',response.status);
+          let userid = parseInt(userID);
 
-       // FB.api('/'+{userid}+'/albums?access_token='+accessToken, function(response2) {
+          // FB.api('/'+{userid}+'/albums?access_token='+accessToken, function(response2) {
 
-
-
-          let fetchUrl = 'https://graph.facebook.com/'+userid+'/albums?access_token='+accessToken+'&fields=id,name,email';
+          //let fetchUrl = 'https://graph.facebook.com/'+userid+'/albums?access_token='+accessToken+'&fields=id,name,email';
+          let fetchUrl = 'https://graph.facebook.com/me/albums?access_token='+accessToken;
 
           //using axios to get all albums
 
@@ -84,47 +83,53 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
             url:fetchUrl,
             responseType:'stream'
           }).then((re)=> {
-              console.log('from axios');
-              console.log(re.data.data);
+            console.log('from axios');
+            console.log(re.data.data);
 
-            for (let i=0; i<re.data.data.length; i++) {
+            //in order to get users photos , this app should be submitted to facebook review
+            if (re.data.data.length > 0) {
 
-              let album = re.data.data[i];
+                    for (let i = 0; i < re.data.data.length; i++) {
+
+                      let album = re.data.data[i];
+
+                      FB.api('/' + album.id + '/photos?fields=picture&access_token=' + accessToken, function (photos) {
+
+                        if (photos && photos.data && photos.data.length) {
+                          for (var j = 0; j < photos.data.length; j++) {
+                            var photo = photos.data[j];
+
+                            // photo.picture contain the link to picture
+                            var link = document.createElement('a');
+                            link.href = photo.picture;
+                            link.download = 'Download.jpg';
 
 
-              FB.api('/'+album.id+'/photos?fields=picture&access_token='+accessToken, function(photos){
+                            var image = document.createElement('img');
+                            image.src = photo.picture;
+                            console.log(photo.picture);
+                            link.appendChild(image);
 
-                if (photos && photos.data && photos.data.length){
-                  for (var j=0; j<photos.data.length; j++){
-                    var photo = photos.data[j];
+                            let galleryItem = {
+                              src: photo.picture,
+                              thumbnail: photo.picture,
+                              thumbnailWidth: 320,
+                              thumbnailHeight: 212,
+                              isSelected: false,
+                              caption: "Click on the image to download it"
+                            };
 
-                    // photo.picture contain the link to picture
-                    var link = document.createElement('a');
-                    link.href = photo.picture;
-                    link.download = 'Download.jpg';
-                   
+                            self.setState({userImg: self.state.userImg.concat(galleryItem)});
 
-                    var image = document.createElement('img');
-                    image.src = photo.picture;
-                    console.log(photo.picture);
-                    link.appendChild(image);
-
-                    let galleryItem = {
-                      src: photo.picture,
-                      thumbnail: photo.picture,
-                      thumbnailWidth: 320,
-                      thumbnailHeight: 212,
-                      isSelected: false,
-                      caption: "Click on the image to download it"
-                    };
-
-                    self.setState({userImg:self.state.userImg.concat(galleryItem)});
-
-                  }
-                }
-              });
+                          }
+                        }
+                      });
+                    }
+            }else {
+              //waiting for facebook approval to use photos on this app
+              localStorage.setItem('approbation',true);
+              self.setState({refresh:false});
             }
-
           });
         //});
 
@@ -139,6 +144,8 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
     event.preventDefault();
     let self = this;
     this.setState({userImg:[],refresh:false});
+    localStorage.setItem('approbation','');
+
     FB.getLoginStatus(function(response) {
 
       if (response.authResponse) {
@@ -147,7 +154,6 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
           self.props.logout();
         });
       }else {
-
         self.props.logout();
       }
     });
@@ -163,8 +169,7 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
   render() {
 
     const {credentials} = this.props;
-    console.log('render called');
-    console.log();
+
     return (
       <div>
 
@@ -174,8 +179,10 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
               {
                 (localStorage.getItem('connectionStatus') === "connected") ?
                     ( <Button waves='light' onClick={this.logoutUser}>Logout</Button>) :
-                    (this.state.refresh ? <Preloader  size='small'/> :<Button waves='light' onClick={this.loginUser}>Login</Button>)
+                    (this.state.refresh ? <Preloader  size='small'/> :<Button waves='light' onClick={this.loginUser}>Sign in with facebook</Button>)
               }
+
+             
 
             </div>
 
@@ -185,6 +192,9 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
 
           <Gallery images={this.state.userImg} backdropClosesModal={true}  onClickImage={this.saveImageAs}/>
 
+        }
+        {
+          localStorage.getItem('approbation') === "true" ? <div className="valign-wrapper" style={{marginTop:10,marginBottom:20}}> <div className="valign center-block"><p>Waiting For facebook to approve getting user images by this app</p></div></div>: ''
         }
 
       </div>
