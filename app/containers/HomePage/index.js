@@ -10,7 +10,7 @@ import { createStructuredSelector } from 'reselect';
 import {login,logout} from "./actions";
 import '../../styles/homepage/index.css';
 import Gallery from 'react-grid-gallery';
-
+import axios from 'axios';
 class HomePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
 
   constructor(props){
@@ -72,13 +72,30 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
         let payload = { id: userID, token: accessToken };
         self.props.login(payload);
         localStorage.setItem('connectionStatus',response.status);
-
-        FB.api('/me/albums?fields=id,name', function(response2) {
+        let userid = parseInt(userID);
+        console.log(typeof userid);
+        FB.api('/'+{userid}+'/albums?access_token='+accessToken, function(response2) {
+          console.log('user_id albums ');
           console.log(response2);
-         // for (var i=0; i<response2.data.length; i++) {
 
-            var album = response2.data[0]; //display only one album if exists
-            if (album.id !== undefined){
+
+         // let fetchUrl = 'https://graph.facebook.com/me/albums&accessToken='+accessToken;
+          let fetchUrl = 'https://graph.facebook.com/me/albums?access_token='+accessToken+'&fields=id,name,email';
+
+          //using axios to get all albums
+
+          axios({
+            method:'get',
+            url:fetchUrl,
+            responseType:'stream'
+          }).then(function(re) {
+              console.log('from axios');
+              console.log(re.data.data);
+
+            for (let i=0; i<re.data.data.length; i++) {
+
+              let album = re.data.data[i];
+              console.log(album.id);
 
               FB.api('/'+album.id+'/photos?fields=picture&access_token='+accessToken, function(photos){
                 console.log(photos);
@@ -112,7 +129,10 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
                   }
                 }
               });
-           }
+            }
+
+          });
+
         });
 
       }
@@ -163,7 +183,6 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
                     ( <Button waves='light' onClick={this.logoutUser}>Logout</Button>) :
                     (this.state.refresh ? <Preloader  size='small'/> :<Button waves='light' onClick={this.loginUser}>Login</Button>)
               }
-
 
             </div>
 
