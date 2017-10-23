@@ -76,8 +76,9 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
         FB.api('/me/albums?fields=id,name', function(response2) {
           console.log(response2);
          // for (var i=0; i<response2.data.length; i++) {
-            var album = response2.data[0]; //display only one album
-           // if (album.name == 'Profile Pictures'){
+
+            var album = response2.data[0]; //display only one album if exists
+            if (album.id !== undefined){
 
               FB.api('/'+album.id+'/photos?fields=picture&access_token='+accessToken, function(photos){
                 console.log(photos);
@@ -100,6 +101,8 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
                     let galleryItem = {
                       src: photo.picture,
                       thumbnail: photo.picture,
+                      thumbnailWidth: 320,
+                      thumbnailHeight: 212,
                       isSelected: false,
                       caption: "Click on the image to download it"
                     };
@@ -109,7 +112,7 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
                   }
                 }
               });
-         // }
+           }
         });
 
       }
