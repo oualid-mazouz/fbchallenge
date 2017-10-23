@@ -31,10 +31,8 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
      var link = document.createElement('a');
      link.href = event.target.src;
      link.download = 'Download.jpg';
-     //document.body.appendChild(link);
-     //link.click();
 
-     var image = document.createElement('img');
+     let image = document.createElement('img');
      image.src = event.target.src;
 
      link.appendChild(image);
@@ -56,7 +54,6 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
     localStorage.setItem('pers',JSON.stringify(this.state.userImg));
 
 
-
   }
 
   loginUser(event){
@@ -73,12 +70,12 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
         self.props.login(payload);
         localStorage.setItem('connectionStatus',response.status);
         let userid = parseInt(userID);
-        console.log(typeof userid);
+
        // FB.api('/'+{userid}+'/albums?access_token='+accessToken, function(response2) {
 
 
-        
-          let fetchUrl = 'https://graph.facebook.com/me/albums?access_token='+accessToken+'&fields=id,name,email';
+
+          let fetchUrl = 'https://graph.facebook.com/'+userid+'/albums?access_token='+accessToken+'&fields=id,name,email';
 
           //using axios to get all albums
 
@@ -93,10 +90,10 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
             for (let i=0; i<re.data.data.length; i++) {
 
               let album = re.data.data[i];
-              console.log(album.id);
+
 
               FB.api('/'+album.id+'/photos?fields=picture&access_token='+accessToken, function(photos){
-                console.log(photos);
+
                 if (photos && photos.data && photos.data.length){
                   for (var j=0; j<photos.data.length; j++){
                     var photo = photos.data[j];
@@ -105,8 +102,7 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
                     var link = document.createElement('a');
                     link.href = photo.picture;
                     link.download = 'Download.jpg';
-                    //document.body.appendChild(link);
-                    //link.click();
+                   
 
                     var image = document.createElement('img');
                     image.src = photo.picture;
