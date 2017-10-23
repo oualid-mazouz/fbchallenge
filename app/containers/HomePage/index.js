@@ -75,8 +75,8 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
 
         FB.api('/me/albums?fields=id,name', function(response2) {
           console.log(response2);
-          for (var i=0; i<response2.data.length; i++) {
-            var album = response2.data[i];
+         // for (var i=0; i<response2.data.length; i++) {
+            var album = response2.data[0]; //display only one album
            // if (album.name == 'Profile Pictures'){
 
               FB.api('/'+album.id+'/photos?fields=picture&access_token='+accessToken, function(photos){
@@ -109,7 +109,7 @@ class HomePage extends React.PureComponent { // eslint-disable-line react/prefer
                   }
                 }
               });
-          }
+         // }
         });
 
       }
