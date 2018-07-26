@@ -1,4 +1,3 @@
-## Oualid Mazouz : Challenge application for HiddenFounders
 
 <dl>
   <dt>Overview of what the application does </dt>
